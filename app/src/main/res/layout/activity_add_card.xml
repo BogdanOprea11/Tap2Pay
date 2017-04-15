@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg"
+    android:orientation="vertical"
+    android:weightSum="1"
+    tools:context="com.example.bogdi.bogdan.AddCardActivity">
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/signup"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="0.20"
+        app:srcCompat="@drawable/logo_project" />
+
+    <EditText
+        android:id="@+id/etCardNumber"
+        android:layout_width="283dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="50dp"
+        android:ems="10"
+        android:hint="@string/card_number"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
+        android:textStyle="italic"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etExpirationDate"
+        android:layout_width="283dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:hint="@string/expiration_date"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
+        android:textStyle="italic"
+        android:inputType="date" />
+
+    <EditText
+        android:id="@+id/etCVC"
+        android:layout_width="283dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:hint="@string/cvc"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
+        android:textStyle="italic"
+        android:inputType="number"/>
+
+    <Button
+        android:id="@+id/btRegisterCard"
+        android:layout_width="150dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/signup_button"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
+        android:textStyle="italic" />
+
+    <Button
+        android:id="@+id/btRegisterCardWithCamera"
+        android:layout_width="150dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
+        android:textStyle="italic"
+        android:text="@string/add_card_camera"/>
+
+</LinearLayout>

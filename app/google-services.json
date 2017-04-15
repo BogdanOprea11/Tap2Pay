@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "88870061190",
+    "firebase_url": "https://tap2pay-cbdad.firebaseio.com",
+    "project_id": "tap2pay-cbdad",
+    "storage_bucket": "tap2pay-cbdad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88870061190:android:ec82b016204242f7",
+        "android_client_info": {
+          "package_name": "com.example.bogdi.bogdan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "88870061190-8i206hifq50hrb04kg4r0kbjt05b3hj6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bogdi.bogdan",
+            "certificate_hash": "08c4e7b8e0d401acd8196e5412ad1e4978ac5118"
+          }
+        },
+        {
+          "client_id": "88870061190-l37rsa0pi8dqblfa4tb0q0jgc5e3f00e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQhYc7Tj5sF0Da9WAztjB9Z7-L9qaUQNw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "88870061190-l37rsa0pi8dqblfa4tb0q0jgc5e3f00e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
