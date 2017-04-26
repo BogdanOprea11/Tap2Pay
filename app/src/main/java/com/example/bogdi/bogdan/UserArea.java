@@ -67,6 +67,14 @@ public class UserArea extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        btRecentActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(UserArea.this,UserMainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public static UserArea getInstance() {

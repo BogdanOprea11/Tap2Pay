@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_addCard"
+        android:title="@string/add_card"/>
+
+    <item android:id="@+id/nav_cards"
+        android:title="@string/cards"/>
+
+    <item android:id="@+id/nav_recentActivity"
+        android:title="@string/recent_activity"/>
+
+    <item android:id="@+id/nav_editProfile"
+        android:title="@string/edit_profile"/>
+
+    <item android:id="@+id/nav_logout"
+        android:title="@string/logout"/>
+</menu>
