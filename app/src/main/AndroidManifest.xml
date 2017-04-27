@@ -33,9 +33,6 @@
             android:name=".RegisterActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".UserArea"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".AddCardActivity"
             android:screenOrientation="portrait" />
 

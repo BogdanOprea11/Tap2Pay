@@ -121,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 if (success) {
                                     LoginActivity.getInstance().finish();
                                     createSession(email, password);
-                                    Intent intent = new Intent(RegisterActivity.this, UserArea.class);
+                                    Intent intent = new Intent(RegisterActivity.this, UserMainActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {

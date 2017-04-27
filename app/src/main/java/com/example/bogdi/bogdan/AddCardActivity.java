@@ -6,8 +6,15 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class AddCardActivity extends AppCompatActivity {
     SharedPreferences preferences;
-
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,7 @@ public class AddCardActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
+        editor = preferences.edit();
 
         final int user_id = preferences.getInt("user_id", 0);
 
@@ -49,7 +57,6 @@ public class AddCardActivity extends AppCompatActivity {
         final EditText etCVC = (EditText) findViewById(R.id.etCVC);
 
         final Button btRegisterCard = (Button) findViewById(R.id.btRegisterCard);
-        final Button btRegisterCardCamera = (Button) findViewById(R.id.btRegisterCardWithCamera);
 
         btRegisterCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,8 +101,8 @@ public class AddCardActivity extends AppCompatActivity {
                                 boolean success = jsonResponse.getBoolean("success");
 
                                 if (success) {
-                                    UserArea.getInstance().finish();
-                                    Intent intent = new Intent(AddCardActivity.this, UserArea.class);
+                                    UserMainActivity.getUserMainActivity().finish();
+                                    Intent intent = new Intent(AddCardActivity.this, UserMainActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -118,14 +125,8 @@ public class AddCardActivity extends AppCompatActivity {
             }
         });
 
-        btRegisterCardCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AddCardActivity.this, AddCardCamera.class);
-                startActivity(intent);
-            }
-        });
     }
+
 
     /**
      * method is used for checking valid password format.

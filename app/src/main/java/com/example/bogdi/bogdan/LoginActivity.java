@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                                         editor.putString("password", password);
                                         editor.putInt("user_id", jsonObject.getInt("user_id"));
                                         editor.apply();
-                                        Intent intent = new Intent(LoginActivity.this, UserArea.class);
+                                        Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                         LoginActivity.this.startActivity(intent);
                                         finish();
 
@@ -157,7 +157,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (!fingerprintManager.isHardwareDetected()) {
                                     Toast.makeText(LoginActivity.this, "Fingerprint authentication permission not enable, provide password Sign In", Toast.LENGTH_SHORT).show();
                                     if (password.equals(preferences.getString("password", ""))) {
-                                        Intent intent = new Intent(LoginActivity.this, UserArea.class);
+                                        Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                         startActivity(intent);
                                         finish();
                                     } else {
@@ -184,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 //password authentication for API level < M
                                 if (password.equals(preferences.getString("password", ""))) {
-                                    Intent intent = new Intent(LoginActivity.this, UserArea.class);
+                                    Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -207,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
                                             editor.putString("password", password);
                                             editor.putInt("user_id", jsonObject.getInt("user_id"));
                                             editor.apply();
-                                            Intent intent = new Intent(LoginActivity.this, UserArea.class);
+                                            Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                             LoginActivity.this.startActivity(intent);
                                             finish();
 
