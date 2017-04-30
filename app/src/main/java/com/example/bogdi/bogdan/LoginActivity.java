@@ -118,6 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                                         editor.putBoolean("fingerprint", true);
                                         editor.putString("password", password);
                                         editor.putInt("user_id", jsonObject.getInt("user_id"));
+                                        editor.putString("firstname",jsonObject.getString("firstname"));
+                                        editor.putString("lastname",jsonObject.getString("lastname"));
                                         editor.apply();
                                         Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                         LoginActivity.this.startActivity(intent);
@@ -205,6 +207,8 @@ public class LoginActivity extends AppCompatActivity {
                                             editor.putString("email", email);
                                             editor.putBoolean("fingerprint", true);
                                             editor.putString("password", password);
+                                            editor.putString("firstname",jsonObject.getString("firstname"));
+                                            editor.putString("lastname",jsonObject.getString("lastname"));
                                             editor.putInt("user_id", jsonObject.getInt("user_id"));
                                             editor.apply();
                                             Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);

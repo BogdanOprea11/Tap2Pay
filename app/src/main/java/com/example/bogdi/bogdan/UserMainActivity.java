@@ -76,6 +76,8 @@ public class UserMainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_cards:
+                        Intent add_card=new Intent(UserMainActivity.this,CreditCard.class);
+                        startActivity(add_card);
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_recentActivity:
@@ -92,6 +94,8 @@ public class UserMainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_editProfile:
+                        Intent editProfile=new Intent(UserMainActivity.this,EditProfileActivity.class);
+                        startActivity(editProfile);
                         drawerLayout.closeDrawers();
                         break;
                     default:

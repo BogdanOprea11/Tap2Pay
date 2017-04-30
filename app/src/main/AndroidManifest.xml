@@ -41,9 +41,9 @@
             android:value="ocr" />
 
         <activity android:name=".AddCardCamera" />
-        <activity android:name=".CardFormActivity" />
-        <activity android:name=".UserMainActivity">
-        </activity>
+        <activity android:name=".UserMainActivity" />
+        <activity android:name=".CreditCard" />
+        <activity android:name=".EditProfileActivity"></activity>
     </application>
 
 </manifest>
