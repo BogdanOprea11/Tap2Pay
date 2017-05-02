@@ -1,40 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    tools:context="com.example.bogdi.bogdan.CreditCard">
-    
+    android:background="@drawable/bg"
+    android:id="@+id/card">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/linearLayoutCardView">
 
-        <com.vinaygaba.creditcardview.CreditCardView
-            android:id="@+id/card1"
-            android:layout_width="fill_parent"
-            android:layout_height="225dp"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/cardbackground_world"
-            app:brandLogo="@drawable/logo_project"
-            app:cardName="John Doe"
-            app:cardNameTextColor="#cccccc"
-            app:cardNumberFormat="all_digits"
-            app:cardNumberTextColor="#cccccc"
-            app:expiryDate="11/15"
-            app:expiryDateTextColor="#cccccc"
-            app:hintTextColor="#ffffff"
-            app:isEditable="true"
-            app:isCardNumberEditable="true"
-            app:putChip="true"
-            app:type="visa"
-            app:validTillTextColor="#cccccc"
-           />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cardImg"/>
+
     </LinearLayout>
 
-
-</ScrollView>
+ </ScrollView>

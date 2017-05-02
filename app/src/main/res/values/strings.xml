@@ -11,9 +11,9 @@
     <string name="signin">Sign In</string>
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="card_number">Card Number</string>
+    <string name="card_name">Card Name</string>
     <string name="expiration_date">Expiration Date</string>
     <string name="cvc">CVC</string>
-    <string name="add_card_camera">Add with Camera</string>
     <string name="title_activity_user">UserActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -26,4 +26,5 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="pay">Pay</string>
+    <string name="submit">Submit</string>
 </resources>

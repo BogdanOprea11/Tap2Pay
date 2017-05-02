@@ -3,9 +3,12 @@ package com.example.bogdi.bogdan;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -20,6 +23,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -29,22 +34,34 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AddCardActivity extends AppCompatActivity {
+    //declare shared preferences
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
+    //declare static variable for context
+    static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //initialize context
+        context=this;
 
         //set fullscreen activity without title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        //initialize preferences;
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         editor = preferences.edit();
 
@@ -52,13 +69,14 @@ public class AddCardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_card);
 
-        final EditText etCardNumber = (EditText) findViewById(R.id.etCardNumber);
-        final EditText etExpirationDate = (EditText) findViewById(R.id.etExpirationDate);
+        final EditText etCardNumber = (EditText) findViewById(R.id.et_cardNumber);
+        final EditText etExpirationDate = (EditText) findViewById(R.id.et_cardExpDate);
         final EditText etCVC = (EditText) findViewById(R.id.etCVC);
+        final EditText etCardName=(EditText) findViewById(R.id.et_cardName);
 
-        final Button btRegisterCard = (Button) findViewById(R.id.btRegisterCard);
+        final Button btSubmitCard = (Button) findViewById(R.id.btSubmitCard);
 
-        btRegisterCard.setOnClickListener(new View.OnClickListener() {
+        btSubmitCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isNetworkAvailable()) {
@@ -102,6 +120,7 @@ public class AddCardActivity extends AppCompatActivity {
 
                                 if (success) {
                                     UserMainActivity.getUserMainActivity().finish();
+                                    saveFrameLayout((LinearLayout) findViewById(R.id.linearLayoutCardView));
                                     Intent intent = new Intent(AddCardActivity.this, UserMainActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -202,4 +221,52 @@ public class AddCardActivity extends AppCompatActivity {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
+
+
+    private static File getOutputMediaFile() {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/data/"
+                + context.getPackageName()
+                + "/Files");
+
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        File mediaFile;
+        //String mImageName = "MI_" + timeStamp + ".jpg";
+        String mImageName="oprea"+".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        return mediaFile;
+    }
+
+    public static void saveFrameLayout(LinearLayout linearLayout) {
+        linearLayout.setDrawingCacheEnabled(true);
+        linearLayout.buildDrawingCache(true);
+        Bitmap cache = Bitmap.createBitmap(linearLayout.getDrawingCache());
+        linearLayout.setDrawingCacheEnabled(false);
+
+        try {
+            File pictureFile = getOutputMediaFile();
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            cache.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        } finally {
+            linearLayout.destroyDrawingCache();
+        }
+    }
+
+
 }
