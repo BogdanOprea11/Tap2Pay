@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -55,15 +56,26 @@ public class MainActivity extends AppCompatActivity {
             mVideoView.requestFocus();
         }
 
+        mVideoView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Intent in =new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(in);
+                finish();
+                return false;
+            }
+        });
+
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer arg0) {
-
                 Intent in =new Intent(MainActivity.this,LoginActivity.class);
                 startActivity(in);
                 finish();
             }
         });
+
+
 
     }
 }
