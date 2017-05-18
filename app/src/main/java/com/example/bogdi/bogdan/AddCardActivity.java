@@ -38,12 +38,13 @@ public class AddCardActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
     //declare static variable for context
     static Context context;
+    String cardType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //initialize context
-        context=this;
+        context = this;
 
         //set fullscreen activity without title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -58,10 +59,13 @@ public class AddCardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_card);
 
-        final EditText etCardNumber = (EditText) findViewById(R.id.et_cardNumber);
+        final EditText etCardNumber1 = (EditText) findViewById(R.id.et_cardNumber1);
+        final EditText etCardNumber2 = (EditText) findViewById(R.id.et_cardNumber2);
+        final EditText etCardNumber3 = (EditText) findViewById(R.id.et_cardNumber3);
+        final EditText etCardNumber4 = (EditText) findViewById(R.id.et_cardNumber4);
         final EditText etExpirationDate = (EditText) findViewById(R.id.et_cardExpDate);
         final EditText etCVC = (EditText) findViewById(R.id.etCVC);
-        final EditText etCardName=(EditText) findViewById(R.id.et_cardName);
+        final EditText etCardName = (EditText) findViewById(R.id.et_cardName);
 
         final Button btSubmitCard = (Button) findViewById(R.id.btSubmitCard);
 
@@ -77,10 +81,15 @@ public class AddCardActivity extends AppCompatActivity {
                     return;
                 }
 
-                final String cardNumber = etCardNumber.getText().toString();
+                final String cardNumber1 = etCardNumber1.getText().toString();
+                final String cardNumber2 = etCardNumber2.getText().toString();
+                final String cardNumber3 = etCardNumber3.getText().toString();
+                final String cardNumber4 = etCardNumber4.getText().toString();
                 final String expirationDate = etExpirationDate.getText().toString();
                 final String cvc = etCVC.getText().toString();
+                final String card_name = etCardName.getText().toString();
                 boolean allInformation = false;
+                final String cardNumber = cardNumber1 + cardNumber2 + cardNumber3 + cardNumber4;
 
                 if (!isValidCardNumber(cardNumber)) {
                     Toast.makeText(AddCardActivity.this, "Please provide 16 digits number for Card Number", Toast.LENGTH_SHORT).show();
@@ -109,7 +118,8 @@ public class AddCardActivity extends AppCompatActivity {
 
                                 if (success) {
                                     UserMainActivity.getUserMainActivity().finish();
-                                    saveFrameLayout((LinearLayout) findViewById(R.id.linearLayoutCardView));
+                                    saveFrameLayout((LinearLayout) findViewById(R.id.linearLayoutCardView), cardNumber);
+                                    Toast.makeText(AddCardActivity.this, cardType, Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(AddCardActivity.this, UserMainActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -126,7 +136,7 @@ public class AddCardActivity extends AppCompatActivity {
                         }
                     };
 
-                    AddCardRequest addCardRequest = new AddCardRequest(cardNumber, expirationDate, cvc, user_id, responseListener);
+                    AddCardRequest addCardRequest = new AddCardRequest(cardNumber, expirationDate, cvc, user_id, card_name, responseListener);
                     RequestQueue queue = Volley.newRequestQueue(AddCardActivity.this);
                     queue.add(addCardRequest);
                 }
@@ -142,19 +152,30 @@ public class AddCardActivity extends AppCompatActivity {
      * @param cardNumber
      * @return boolean true for valid false for invalid
      */
-    private static boolean isValidCardNumber(String cardNumber) {
-        boolean isValid = false;
+    private boolean isValidCardNumber(String cardNumber) {
+        final String PATTERN_VISA = "^4[0-9]{12}(?:[0-9]{3})?$";
 
-        CharSequence inputStr = cardNumber;
-        String CARD_NUMBER_PATTERN = "^\\d{16}$";
+        final String PATTERN_MASTER_CARD = "^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$";
 
-        Pattern pattern = Pattern.compile(CARD_NUMBER_PATTERN, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(inputStr);
+        final String PATTERN_AMERICAN_EXPRESS = "^3[47][0-9]{13}$";
 
-        if (matcher.matches()) {
-            isValid = true;
-        }
-        return isValid;
+        final String PATTERN_DISCOVER = "^6(?:011|5[0-9]{2})[0-9]{12}$";
+
+        if (Pattern.compile(PATTERN_VISA).matcher(cardNumber).matches()) {
+            this.cardType = "VISA";
+            return true;
+        } else if (Pattern.compile(PATTERN_MASTER_CARD).matcher(cardNumber).matches()) {
+                this.cardType = "MASTERCARD";
+                return true;
+            } else if (Pattern.compile(PATTERN_AMERICAN_EXPRESS).matcher(cardNumber).matches()) {
+                this.cardType = "AMERICAN_EXPRESS";
+                return true;
+            } else if (Pattern.compile(PATTERN_DISCOVER).matcher(cardNumber).matches()) {
+                this.cardType = "DISCOVER";
+                return true;
+            }
+            else
+                return false;
     }
 
     /**
@@ -211,7 +232,7 @@ public class AddCardActivity extends AppCompatActivity {
         return activeNetworkInfo != null;
     }
 
-    private static File getOutputMediaFile() {
+    private static File getOutputMediaFile(String card_number) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
@@ -233,19 +254,19 @@ public class AddCardActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
         File mediaFile;
         //String mImageName = "MI_" + timeStamp + ".jpg";
-        String mImageName="oprea"+".jpg";
+        String mImageName = card_number + ".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         return mediaFile;
     }
 
-    public static void saveFrameLayout(LinearLayout linearLayout) {
+    public static void saveFrameLayout(LinearLayout linearLayout, String card_number) {
         linearLayout.setDrawingCacheEnabled(true);
         linearLayout.buildDrawingCache(true);
         Bitmap cache = Bitmap.createBitmap(linearLayout.getDrawingCache());
         linearLayout.setDrawingCacheEnabled(false);
 
         try {
-            File pictureFile = getOutputMediaFile();
+            File pictureFile = getOutputMediaFile(card_number);
             FileOutputStream fos = new FileOutputStream(pictureFile);
             cache.compress(Bitmap.CompressFormat.PNG, 90, fos);
             fos.close();

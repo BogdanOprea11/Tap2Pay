@@ -44,7 +44,7 @@
             android:value="ocr" />
 
         <activity android:name=".UserMainActivity" />
-        <activity android:name=".CreditCard" />
+        <activity android:name=".CreditCardViewActivity" />
         <activity android:name=".EditProfileActivity" />
         <activity android:name=".PayActivity">
             <intent-filter>
