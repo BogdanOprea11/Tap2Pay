@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -39,6 +40,7 @@ public class AddCardActivity extends AppCompatActivity {
     //declare static variable for context
     static Context context;
     String cardType;
+    //CreditCard creditCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +61,7 @@ public class AddCardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_card);
 
-        final EditText etCardNumber1 = (EditText) findViewById(R.id.et_cardNumber1);
-        final EditText etCardNumber2 = (EditText) findViewById(R.id.et_cardNumber2);
-        final EditText etCardNumber3 = (EditText) findViewById(R.id.et_cardNumber3);
-        final EditText etCardNumber4 = (EditText) findViewById(R.id.et_cardNumber4);
+        final EditText etCardNumber= (EditText) findViewById(R.id.et_cardNumber);
         final EditText etExpirationDate = (EditText) findViewById(R.id.et_cardExpDate);
         final EditText etCVC = (EditText) findViewById(R.id.etCVC);
         final EditText etCardName = (EditText) findViewById(R.id.et_cardName);
@@ -81,20 +80,25 @@ public class AddCardActivity extends AppCompatActivity {
                     return;
                 }
 
-                final String cardNumber1 = etCardNumber1.getText().toString();
-                final String cardNumber2 = etCardNumber2.getText().toString();
-                final String cardNumber3 = etCardNumber3.getText().toString();
-                final String cardNumber4 = etCardNumber4.getText().toString();
+                final String cardNumber = etCardNumber.getText().toString();
                 final String expirationDate = etExpirationDate.getText().toString();
                 final String cvc = etCVC.getText().toString();
                 final String card_name = etCardName.getText().toString();
                 boolean allInformation = false;
-                final String cardNumber = cardNumber1 + cardNumber2 + cardNumber3 + cardNumber4;
 
                 if (!isValidCardNumber(cardNumber)) {
                     Toast.makeText(AddCardActivity.this, "Please provide 16 digits number for Card Number", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
+                    String auxiliar="";
+                    for (int i = 0; i < cardNumber.length(); i=i+4) {
+                        auxiliar+=cardNumber.charAt(i)+ "";
+                        auxiliar+=cardNumber.charAt(i+1)+ "";
+                        auxiliar+=cardNumber.charAt(i+2)+ "";
+                        auxiliar+=cardNumber.charAt(i+3)+ "";
+                        auxiliar+="     ";
+                    }
+                    etCardNumber.setText(auxiliar);
                     if (!isValidCardExpDate(expirationDate)) {
                         Toast.makeText(AddCardActivity.this, "Please provide MM/YY card expiration date", Toast.LENGTH_SHORT).show();
                         return;
@@ -109,6 +113,7 @@ public class AddCardActivity extends AppCompatActivity {
                 }
 
                 if (allInformation) {
+                    //creditCard=new CreditCard(Integer.parseInt(cardNumber),card_name,expirationDate,Integer.parseInt(cvc));
                     Response.Listener<String> responseListener = new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -165,17 +170,16 @@ public class AddCardActivity extends AppCompatActivity {
             this.cardType = "VISA";
             return true;
         } else if (Pattern.compile(PATTERN_MASTER_CARD).matcher(cardNumber).matches()) {
-                this.cardType = "MASTERCARD";
-                return true;
-            } else if (Pattern.compile(PATTERN_AMERICAN_EXPRESS).matcher(cardNumber).matches()) {
-                this.cardType = "AMERICAN_EXPRESS";
-                return true;
-            } else if (Pattern.compile(PATTERN_DISCOVER).matcher(cardNumber).matches()) {
-                this.cardType = "DISCOVER";
-                return true;
-            }
-            else
-                return false;
+            this.cardType = "MASTERCARD";
+            return true;
+        } else if (Pattern.compile(PATTERN_AMERICAN_EXPRESS).matcher(cardNumber).matches()) {
+            this.cardType = "AMERICAN_EXPRESS";
+            return true;
+        } else if (Pattern.compile(PATTERN_DISCOVER).matcher(cardNumber).matches()) {
+            this.cardType = "DISCOVER";
+            return true;
+        } else
+            return false;
     }
 
     /**

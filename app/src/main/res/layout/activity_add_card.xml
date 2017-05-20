@@ -48,48 +48,14 @@
                 android:background="@drawable/visa"/>
 
             <EditText
-                android:id="@+id/et_cardNumber1"
-                android:layout_width="80dp"
+                android:id="@+id/et_cardNumber"
+                android:layout_width="280dp"
                 android:layout_height="43dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="120dp"
                 android:inputType="number"
-                android:hint="Card"
-                android:textColor="@color/colorCard"
-                android:textColorHint="@color/colorCard"/>
-
-            <EditText
-                android:id="@+id/et_cardNumber2"
-                android:layout_width="80dp"
-                android:layout_height="43dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="115dp"
-                android:layout_marginTop="120dp"
-                android:inputType="number"
-                android:hint="Number"
-                android:textColor="@color/colorCard"
-                android:textColorHint="@color/colorCard"/>
-
-            <EditText
-                android:id="@+id/et_cardNumber3"
-                android:layout_width="80dp"
-                android:layout_height="43dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="200dp"
-                android:layout_marginTop="120dp"
-                android:inputType="number"
-                android:textColor="@color/colorCard"
-                android:textColorHint="@color/colorCard"/>
-
-            <EditText
-                android:id="@+id/et_cardNumber4"
-                android:layout_width="80dp"
-                android:layout_height="43dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="285dp"
-                android:layout_marginTop="120dp"
-                android:inputType="number"
+                android:hint="@string/card_number"
                 android:textColor="@color/colorCard"
                 android:textColorHint="@color/colorCard"/>
 

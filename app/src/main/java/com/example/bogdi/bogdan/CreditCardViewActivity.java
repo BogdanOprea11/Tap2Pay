@@ -8,12 +8,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -67,7 +71,16 @@ public class CreditCardViewActivity extends AppCompatActivity {
             });
         }
 
-        linearLayout.removeViewAt(1);
+
+
+       // for(int i=0;i<3;i++) {
+          //  LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            //View view = inflater.inflate(R.layout.card_view,linearLayout, true);
+            //linearLayout.addView(view);
+            //TextView cardNumber =(TextView) frameLayout.getChildAt(4);
+            //cardNumber.setText("MARE MUE");
+        //}
+
     }
 
     //method that load images from storage and show them in views
