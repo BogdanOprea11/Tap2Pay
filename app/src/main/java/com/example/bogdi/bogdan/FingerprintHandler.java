@@ -16,6 +16,7 @@ import android.Manifest;
 public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
 
     private Context context;
+    private boolean deleteVar;
 
     protected FingerprintHandler(Context context) {
         this.context = context;
@@ -38,8 +39,19 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
     @Override
     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
         super.onAuthenticationSucceeded(result);
-        context.startActivity(new Intent(context, UserMainActivity.class));
-        LoginActivity.getInstance().finish();
+        if(!deleteVar) {
+            context.startActivity(new Intent(context, UserMainActivity.class));
+            LoginActivity.getInstance().finish();
+        }else{
+            UserMainActivity.getUserMainActivity().deleteProfile();
+        }
+    }
 
+    public boolean isDeleteVar() {
+        return deleteVar;
+    }
+
+    public void setDeleteVar(boolean deleteVar) {
+        this.deleteVar = deleteVar;
     }
 }

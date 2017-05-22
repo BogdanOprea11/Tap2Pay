@@ -105,42 +105,47 @@ public class LoginActivity extends AppCompatActivity {
                                     .show();
                             return;
                         }
-                        //make login if there is no session
-                        Response.Listener<String> responseListener = new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = jsonObject.getBoolean("success");
+                        if(password.length()!=0) {
+                            //make login if there is no session
+                            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response);
+                                        boolean success = jsonObject.getBoolean("success");
 
-                                    if (success) {
-                                        editor.putString("email", email);
-                                        editor.putBoolean("fingerprint", true);
-                                        editor.putString("password", password);
-                                        editor.putInt("user_id", jsonObject.getInt("user_id"));
-                                        editor.putString("firstname",jsonObject.getString("firstname"));
-                                        editor.putString("lastname",jsonObject.getString("lastname"));
-                                        editor.apply();
-                                        Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
-                                        LoginActivity.this.startActivity(intent);
-                                        finish();
+                                        if (success) {
+                                            editor.putString("email", email);
+                                            editor.putBoolean("fingerprint", true);
+                                            editor.putString("password", password);
+                                            editor.putInt("user_id", jsonObject.getInt("user_id"));
+                                            editor.putString("firstname", jsonObject.getString("firstname"));
+                                            editor.putString("lastname", jsonObject.getString("lastname"));
+                                            editor.apply();
+                                            Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
+                                            LoginActivity.this.startActivity(intent);
+                                            finish();
 
-                                    } else {
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                                        builder.setMessage("Sign in Failed")
-                                                .setNegativeButton("Retry", null)
-                                                .create()
-                                                .show();
+                                        } else {
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                                            builder.setMessage("Sign in Failed")
+                                                    .setNegativeButton("Retry", null)
+                                                    .create()
+                                                    .show();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
-                            }
-                        };
+                            };
 
-                        LoginRequest loginRequest = new LoginRequest(email, password, responseListener);
-                        RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
-                        queue.add(loginRequest);
+                            LoginRequest loginRequest = new LoginRequest(email, password, responseListener);
+                            RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
+                            queue.add(loginRequest);
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, "Please provide account password!", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
 
                         //checking session make autentication with fingerprint or password
@@ -157,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 // password authentication for API level > M
                                 if (!fingerprintManager.isHardwareDetected()) {
-                                    Toast.makeText(LoginActivity.this, "Fingerprint authentication permission not enable, provide password Sign In", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "Fingerprint authentication permission not enable,please provide your account password!", Toast.LENGTH_LONG).show();
                                     if (password.equals(preferences.getString("password", ""))) {
                                         Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);
                                         startActivity(intent);
@@ -174,10 +179,12 @@ public class LoginActivity extends AppCompatActivity {
                                         if (!keyguardManager.isKeyguardSecure())
                                             Toast.makeText(LoginActivity.this, "Lock screen security not enabled in Settings", Toast.LENGTH_SHORT).show();
                                         else
+                                            Toast.makeText(LoginActivity.this, "Fingerprint authentication enable, please provide your fingerprint!", Toast.LENGTH_LONG).show();
                                             genKey();
                                         if (cipherInit()) {
                                             FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
                                             FingerprintHandler helper = new FingerprintHandler(LoginActivity.this);
+                                            helper.setDeleteVar(false);
                                             helper.startAuthentication(fingerprintManager, cryptoObject);
                                         }
                                     }

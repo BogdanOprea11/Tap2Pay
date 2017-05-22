@@ -27,5 +27,5 @@
     <string name="close">Close</string>
     <string name="pay">Pay</string>
     <string name="submit">Submit</string>
-    <string name="delete_profile">Delete Profile</string>
+    <string name="delete_profile">Delete Account</string>
 </resources>
