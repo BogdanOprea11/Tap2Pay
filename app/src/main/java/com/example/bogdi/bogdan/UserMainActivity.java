@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -126,8 +127,12 @@ public class UserMainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_recentActivity:
-                        Intent recentActivity = new Intent(UserMainActivity.this, DownloadActivity.class);
-                        startActivity(recentActivity);
+                        //Intent recentActivity = new Intent(UserMainActivity.this, DownloadActivity.class);
+                        //startActivity(recentActivity);
+                        //CallSoap soap=new CallSoap();
+                        new AsyncCallSoap().execute();
+                        //String response=new AsyncCallSoap().execute();
+                        //Toast.makeText(UserMainActivity.this,soap.Call(4) , Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_logout:
@@ -167,7 +172,7 @@ public class UserMainActivity extends AppCompatActivity {
                                 .show();
                         break;
                     default:
-                        Toast.makeText(UserMainActivity.this, "Invalid option", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UserMainActivity.this, "Invalid option", Toast.LENGTH_LONG).show();
                         break;
                 }
                 return true;
@@ -337,4 +342,20 @@ public class UserMainActivity extends AppCompatActivity {
 
     }
 
+
+    public class AsyncCallSoap extends AsyncTask<String,Void,String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            CallSoap cs=new CallSoap();
+            String response=cs.Call(5);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            Toast.makeText(UserMainActivity.this,result , Toast.LENGTH_SHORT).show();
+        }
+    }
 }
