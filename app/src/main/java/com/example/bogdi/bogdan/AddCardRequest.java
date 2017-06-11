@@ -11,7 +11,7 @@ public class AddCardRequest extends StringRequest{
     private static final String REGISTER_REQUEST_URL="https://tap2pay.000webhostapp.com/addcard.php";
     private Map<String, String> params;
 
-    public AddCardRequest(String cardNumber, String expirationDate, String cvc, int user_id,String card_name, Response.Listener<String> listener){
+    public AddCardRequest(String cardNumber, String expirationDate, String cvc, int user_id,String card_name, String cardSign, Response.Listener<String> listener){
         super(Request.Method.POST, REGISTER_REQUEST_URL, listener,null);
 
         params =new HashMap<>();
@@ -20,6 +20,7 @@ public class AddCardRequest extends StringRequest{
         params.put("CVC",cvc);
         params.put("user_id",user_id+"");
         params.put("card_name",card_name);
+        params.put("Sign",cardSign);
     }
 
     @Override

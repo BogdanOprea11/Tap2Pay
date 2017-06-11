@@ -34,6 +34,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +47,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.ExecutionException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -59,12 +61,13 @@ public class UserMainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
+    SharedPreferences preferencesCards;
+    SharedPreferences.Editor editorCards;
     static UserMainActivity userMainActivity;
     private int user_id;
     private KeyStore keyStore;
     private static final String KEY_NAME = "Tap2Pay_Key";
     private Cipher cipher;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +82,8 @@ public class UserMainActivity extends AppCompatActivity {
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         editor = preferences.edit();
         user_id = preferences.getInt("user_id", 0);
+
+        getCards();
 
         setContentView(R.layout.activity_user_main);
         Button btPay = (Button) findViewById(R.id.btPay1);
@@ -129,10 +134,6 @@ public class UserMainActivity extends AppCompatActivity {
                     case R.id.nav_recentActivity:
                         //Intent recentActivity = new Intent(UserMainActivity.this, DownloadActivity.class);
                         //startActivity(recentActivity);
-                        //CallSoap soap=new CallSoap();
-                        new AsyncCallSoap().execute();
-                        //String response=new AsyncCallSoap().execute();
-                        //Toast.makeText(UserMainActivity.this,soap.Call(4) , Toast.LENGTH_SHORT).show();
                         drawerLayout.closeDrawers();
                         break;
                     case R.id.nav_logout:
@@ -342,20 +343,28 @@ public class UserMainActivity extends AppCompatActivity {
 
     }
 
+    //method that interrogates DB and return all cards that user has inserted
+    private void getCards() {
+        preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
+        int user_id = preferences.getInt("user_id", 0);
 
-    public class AsyncCallSoap extends AsyncTask<String,Void,String>{
+        preferencesCards = getSharedPreferences("cards", Context.MODE_PRIVATE);
+        editorCards = preferencesCards.edit();
 
-        @Override
-        protected String doInBackground(String... params) {
-            CallSoap cs=new CallSoap();
-            String response=cs.Call(5);
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-            super.onPostExecute(result);
-            Toast.makeText(UserMainActivity.this,result , Toast.LENGTH_SHORT).show();
-        }
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONArray jsonarray = new JSONArray(response);
+                    editorCards.putString("cardsString",jsonarray.toString());
+                    editorCards.apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        GetCardsRequest getCardsRequest = new GetCardsRequest(user_id, responseListener);
+        RequestQueue queue = Volley.newRequestQueue(UserMainActivity.this);
+        queue.add(getCardsRequest);
     }
 }

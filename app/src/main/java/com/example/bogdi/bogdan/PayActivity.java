@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.Window;
@@ -23,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.Manifest;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,48 +28,32 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.spongycastle.cert.X509CertificateHolder;
-import org.spongycastle.openssl.PEMParser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PayActivity extends Activity
         implements NfcAdapter.OnNdefPushCompleteCallback,
         NfcAdapter.CreateNdefMessageCallback {
 
+    private ArrayList<String> jsonObjects= new ArrayList<>();
+
+    SharedPreferences preferencesCards;
+
     //The array list to hold messages
     private ArrayList<String> messagesToSend = new ArrayList<>();
-    private ArrayList<String> messagesReceived = new ArrayList<>();
+    //private ArrayList<String> messagesReceived = new ArrayList<>();
 
     //edit text for inserting message
     private EditText etMessage;
 
     //text views to show message to send and received
-    private TextView tvMessageReceived;
+    //private TextView tvMessageReceived;
     private TextView tvMessageToSend;
 
     private NfcAdapter nfcAdapter;
 
-    SharedPreferences preferences;
-
-    private boolean nfcStatus;
-
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
     Context context;
 
     @Override
@@ -86,12 +66,12 @@ public class PayActivity extends Activity
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_pay);
-
         context=this;
 
+        addCards();
         //get layout items
         etMessage = (EditText) findViewById(R.id.txtBoxAddMessage);
-        tvMessageReceived = (TextView) findViewById(R.id.txtMessagesReceived);
+        //tvMessageReceived = (TextView) findViewById(R.id.txtMessagesReceived);
         tvMessageToSend = (TextView) findViewById(R.id.txtMessageToSend);
 
         Button button = (Button) findViewById(R.id.buttonAddMessage);
@@ -105,7 +85,6 @@ public class PayActivity extends Activity
         if (nfcAdapter != null) {
             //check if NFC is enabled continue and if not show a dialog that prompt you a message to enable NFC
             if (nfcAdapter.isEnabled()) {
-                nfcStatus = true;
                 //This will refer back to createNdefMessage for what it will send
                 nfcAdapter.setNdefPushMessageCallback(this, this);
 
@@ -113,14 +92,11 @@ public class PayActivity extends Activity
                 nfcAdapter.setOnNdefPushCompleteCallback(this, this);
             } else {
                 alertNFCDissabled();
-                nfcStatus = false;
                 return;
             }
         } else {
             Toast.makeText(this, "NFC is not Available", Toast.LENGTH_SHORT).show();
         }
-        getCards();
-        openCertificate();
     }
 
     //Save our array lists of messages, if the user navigates away
@@ -128,14 +104,14 @@ public class PayActivity extends Activity
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList("messageToSend", messagesToSend);
-        savedInstanceState.putStringArrayList("messageReceived", messagesReceived);
+        //savedInstanceState.putStringArrayList("messageReceived", messagesReceived);
     }
 
     //Load our array lists of messages when user navigates back
     @Override
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        messagesReceived = savedInstanceState.getStringArrayList("messageReceived");
+        //messagesReceived = savedInstanceState.getStringArrayList("messageReceived");
         messagesToSend = savedInstanceState.getStringArrayList("messageToSend");
     }
 
@@ -189,14 +165,14 @@ public class PayActivity extends Activity
         }
 
         //update text view for message that was received
-        tvMessageReceived.setText("Message Received: \n");
-        if (messagesReceived.size() > 0) {
-            for (int i = 0; i < messagesReceived.size(); i++) {
-                tvMessageReceived.append(messagesReceived.get(i));
-                tvMessageReceived.append("\n");
-            }
-        }
-    }
+//        tvMessageReceived.setText("Message Received: \n");
+//        if (messagesReceived.size() > 0) {
+//            for (int i = 0; i < messagesReceived.size(); i++) {
+//                tvMessageReceived.append(messagesReceived.get(i));
+//                tvMessageReceived.append("\n");
+//            }
+//        }
+   }
 
     //method that create records for Ndef Message
     public NdefRecord[] createRecords() {
@@ -212,54 +188,57 @@ public class PayActivity extends Activity
 
     //method used to handle the NFC intent received
     private void handleNfcIntent(Intent NfcIntent) {
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(NfcIntent.getAction())) {
-            Parcelable[] receivedArray = NfcIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-
-            //if something is received we will proceed our computations
-            if (receivedArray != null) {
-                //clear existed messages
-                messagesReceived.clear();
-                NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
-                NdefRecord[] attachedRecords = receivedMessage.getRecords();
-
-                //handle message received
-                for (NdefRecord record : attachedRecords) {
-                    String string = new String(record.getPayload());
-                    messagesReceived.add(string);
-                }
-
-                updateTextViews();
-            } else {
-                Toast.makeText(this, "Received a blank message", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(NfcIntent.getAction())) {
+//            Parcelable[] receivedArray = NfcIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+//
+//            //if something is received we will proceed our computations
+//            if (receivedArray != null) {
+//                //clear existed messages
+//                messagesReceived.clear();
+//                NdefMessage receivedMessage = (NdefMessage) receivedArray[0];
+//                NdefRecord[] attachedRecords = receivedMessage.getRecords();
+//
+//                //handle message received
+//                for (NdefRecord record : attachedRecords) {
+//                    String string = new String(record.getPayload());
+//                    messagesReceived.add(string);
+//                }
+//
+//                updateTextViews();
+//            } else {
+//                Toast.makeText(this, "Received a blank message", Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 
-    //method that interrogates DB and return all cards that user has inserted
-    private void getCards() {
-        preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
-        int user_id = preferences.getInt("user_id", 0);
+    private void addCards(){
+        preferencesCards = getSharedPreferences("cards", Context.MODE_PRIVATE);
 
-        Response.Listener<String> responseListener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+        try {
+            JSONArray jsonarray = new JSONArray(preferencesCards.getString("cardsString",""));
+            for (int i = 0; i < jsonarray.length(); i++) {
+                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                JSONObject json = new JSONObject();
                 try {
-                    JSONArray jsonarray = new JSONArray(response);
-                    for (int i = 0; i < jsonarray.length(); i++) {
-                        JSONObject jsonobject = jsonarray.getJSONObject(i);
-                        //String card_name = jsonobject.getString("card_name");
-                        //asString card_number = jsonobject.getString("CARD_NUMBER");
-                        //messagesToSend.add(jsonobject.toString());
-                    }
+                    json.put("CARD_NUMBER", jsonobject.getString("CARD_NUMBER"));
+                    json.put("EXP_DATE", jsonobject.getString("EXP_DATE"));
+                    json.put("CVC", jsonobject.getString("CVC"));
+                    json.put("card_name", jsonobject.getString("card_name"));
+                    json.put("Sign",jsonobject.getString("Sign"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                jsonObjects.add(json.toString());
             }
-        };
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        GetCardsRequest getCardsRequest = new GetCardsRequest(user_id, responseListener);
-        RequestQueue queue = Volley.newRequestQueue(PayActivity.this);
-        queue.add(getCardsRequest);
+
+//        for(int i=0;i<jsonObjects.size();i++){
+//            Toast.makeText(PayActivity.this,jsonObjects.get(i),Toast.LENGTH_LONG).show();
+//        }
+        messagesToSend.add(jsonObjects.get(0));
     }
 
     //method that create a dialog that prompt a message to enable NFC
@@ -286,71 +265,4 @@ public class PayActivity extends Activity
     }
 
 
-    //------------------CRYPTO SIDE-------------------------
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    public void openCertificate() {
-        if(isExternalStorageReadable()){
-            verifyStoragePermissions(this);
-            String name="BT.crt";
-            File certFile=new File(Environment.getExternalStorageDirectory()
-                    + "/Android/data/"
-                    + context.getPackageName()
-                    + "/Files/"+name);
-            name="BT.key";
-            File keyFile=new File(Environment.getExternalStorageDirectory()
-                    + "/Android/data/"
-                    + context.getPackageName()
-                    + "/Files/"+name);
-            try {
-                //PEMParser pp = new PEMParser(new InputStreamReader(new FileInputStream(certFile)));
-                //Object object=pp.readObject();
-                //X509CertificateHolder certificate=(X509CertificateHolder) object;
-                //pp.close();
-
-                CertificateFactory certificateFactory=CertificateFactory.getInstance("X.509");
-                InputStream in=new FileInputStream(certFile);
-                X509Certificate certificate=(X509Certificate)certificateFactory.generateCertificate(in);
-                Toast.makeText(this,certificate.getIssuerDN().toString(),Toast.LENGTH_LONG).show();
-
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (CertificateException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

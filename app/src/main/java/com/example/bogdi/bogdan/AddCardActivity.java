@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
@@ -30,17 +33,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AddCardActivity extends AppCompatActivity {
     //declare shared preferences
     SharedPreferences preferences;
-    SharedPreferences.Editor editor;
     //declare static variable for context
     static Context context;
     String cardType;
-    //CreditCard creditCard;
+    String cardJson;
+    boolean cardDataValidation;
+    String cardSigned;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +60,12 @@ public class AddCardActivity extends AppCompatActivity {
 
         //initialize preferences;
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
-        editor = preferences.edit();
 
         final int user_id = preferences.getInt("user_id", 0);
 
         setContentView(R.layout.activity_add_card);
 
-        final EditText etCardNumber= (EditText) findViewById(R.id.et_cardNumber);
+        final EditText etCardNumber = (EditText) findViewById(R.id.et_cardNumber);
         final EditText etExpirationDate = (EditText) findViewById(R.id.et_cardExpDate);
         final EditText etCVC = (EditText) findViewById(R.id.etCVC);
         final EditText etCardName = (EditText) findViewById(R.id.et_cardName);
@@ -84,21 +88,23 @@ public class AddCardActivity extends AppCompatActivity {
                 final String expirationDate = etExpirationDate.getText().toString();
                 final String cvc = etCVC.getText().toString();
                 final String card_name = etCardName.getText().toString();
+
                 boolean allInformation = false;
+                boolean submit = false;
 
                 if (!isValidCardNumber(cardNumber)) {
                     Toast.makeText(AddCardActivity.this, "Please provide 16 digits number for Card Number", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
-                    String auxiliar="";
-                    for (int i = 0; i < cardNumber.length(); i=i+4) {
-                        auxiliar+=cardNumber.charAt(i)+ "";
-                        auxiliar+=cardNumber.charAt(i+1)+ "";
-                        auxiliar+=cardNumber.charAt(i+2)+ "";
-                        auxiliar+=cardNumber.charAt(i+3)+ "";
-                        auxiliar+="     ";
+                    String auxiliar = "";
+                    for (int i = 0; i < cardNumber.length(); i = i + 4) {
+                        auxiliar += cardNumber.charAt(i) + "";
+                        auxiliar += cardNumber.charAt(i + 1) + "";
+                        auxiliar += cardNumber.charAt(i + 2) + "";
+                        auxiliar += cardNumber.charAt(i + 3) + "";
+                        auxiliar += "     ";
                     }
-                    etCardNumber.setText(auxiliar);
+                    //etCardNumber.setText(auxiliar);
                     if (!isValidCardExpDate(expirationDate)) {
                         Toast.makeText(AddCardActivity.this, "Please provide MM/YY card expiration date", Toast.LENGTH_SHORT).show();
                         return;
@@ -107,13 +113,20 @@ public class AddCardActivity extends AppCompatActivity {
                             Toast.makeText(AddCardActivity.this, "Please provide 3 digits number for CVC", Toast.LENGTH_SHORT).show();
                             return;
                         } else {
-                            allInformation = true;
+                            allInformation=true;
                         }
                     }
                 }
 
                 if (allInformation) {
-                    //creditCard=new CreditCard(Integer.parseInt(cardNumber),card_name,expirationDate,Integer.parseInt(cvc));
+                    submit = checkCard(cardNumber, expirationDate, card_name, cvc);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (submit) {
                     Response.Listener<String> responseListener = new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -141,9 +154,16 @@ public class AddCardActivity extends AppCompatActivity {
                         }
                     };
 
-                    AddCardRequest addCardRequest = new AddCardRequest(cardNumber, expirationDate, cvc, user_id, card_name, responseListener);
+                    AddCardRequest addCardRequest = new AddCardRequest(cardNumber, expirationDate, cvc, user_id, card_name, cardSigned, responseListener);
                     RequestQueue queue = Volley.newRequestQueue(AddCardActivity.this);
                     queue.add(addCardRequest);
+                } else {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(AddCardActivity.this);
+//                    builder.setMessage("Your credit card information are not valid!")
+//                            .setNegativeButton("Retry", null)
+//                            .create()
+//                            .show();
+                    Toast.makeText(AddCardActivity.this,"Nu merge!",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -263,7 +283,7 @@ public class AddCardActivity extends AppCompatActivity {
         return mediaFile;
     }
 
-    public static void saveFrameLayout(LinearLayout linearLayout, String card_number) {
+    private static void saveFrameLayout(LinearLayout linearLayout, String card_number) {
         linearLayout.setDrawingCacheEnabled(true);
         linearLayout.buildDrawingCache(true);
         Bitmap cache = Bitmap.createBitmap(linearLayout.getDrawingCache());
@@ -281,4 +301,63 @@ public class AddCardActivity extends AppCompatActivity {
         }
     }
 
+    private boolean checkCard(String cNum, String expDate, String cName, String cCVC) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("CARD_NUMBER", cNum);
+            jsonObject.put("EXP_DATE", expDate);
+            jsonObject.put("CVC", cCVC);
+            jsonObject.put("card_name", cName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        cardJson = jsonObject.toString();
+        new AsyncCallSoapValidateCard().execute();
+
+        return cardDataValidation;
+    }
+
+    public class AsyncCallSoapValidateCard extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            CallSoap cs = new CallSoap();
+            String response = cs.CallValidate(cardJson);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result.equals("False")) {
+                cardDataValidation = false;
+            }
+            if(result.equals("True")){
+                try {
+                    new AsyncCallSoapSignCard().execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                cardDataValidation=true;
+            }
+        }
+    }
+
+    public class AsyncCallSoapSignCard extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            CallSoap cs = new CallSoap();
+            String response = cs.CallSign(cardJson);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            cardSigned=result;
+        }
+    }
 }
