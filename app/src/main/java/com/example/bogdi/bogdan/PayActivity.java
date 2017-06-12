@@ -1,20 +1,30 @@
 package com.example.bogdi.bogdan;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,9 +41,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class PayActivity extends Activity
         implements NfcAdapter.OnNdefPushCompleteCallback,
@@ -43,9 +67,21 @@ public class PayActivity extends Activity
     private ArrayList<String> messagesToSend = new ArrayList<>();
     private ArrayList<String> jsonObjects = new ArrayList<>();
 
+    private int position;
+
+    SharedPreferences preferences;
     SharedPreferences preferencesCards;
     private NfcAdapter nfcAdapter;
     Context context;
+    static PayActivity payActivity;
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerViewAdapter recyclerViewAdapter;
+
+    private KeyStore keyStore;
+    private static final String KEY_NAME = "Tap2Pay_Key";
+    private Cipher cipher;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +94,15 @@ public class PayActivity extends Activity
 
         setContentView(R.layout.activity_pay);
         context = this;
+        payActivity=this;
 
+        recyclerView=(RecyclerView) findViewById(R.id.recyclerView);
+
+        layoutManager =new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        recyclerViewAdapter=new RecyclerViewAdapter(this,jsonObjects);
+        recyclerView.setAdapter(recyclerViewAdapter);
         addCards();
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -147,7 +191,7 @@ public class PayActivity extends Activity
      *
      * @return every card data and save it in jsonObjects
      */
-    private void addCards() {
+    public void addCards() {
         preferencesCards = getSharedPreferences("cards", Context.MODE_PRIVATE);
 
         try {
@@ -169,8 +213,62 @@ public class PayActivity extends Activity
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
-        messagesToSend.add(jsonObjects.get(0));
+    public void chooseCards(int position,boolean delete){
+        if(delete){
+            delete();
+        }else {
+            messagesToSend.add(jsonObjects.get(position));
+        }
+    }
+
+    public void delete(){
+        preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
+        int user_id = preferences.getInt("user_id", 0);
+        Toast.makeText(context,"Am intrat in delete!",Toast.LENGTH_SHORT).show();
+
+//        Response.Listener<String> responseListener = new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//                try {
+//                    JSONObject jsonResponse = new JSONObject(response);
+//                    boolean success = jsonResponse.getBoolean("success");
+//
+//                    if (success) {
+//                        Toast.makeText(context,"Card deleted!",Toast.LENGTH_SHORT).show();
+//                        UserMainActivity.getUserMainActivity().getCards();
+//                        recreate();
+//                    } else {
+//                        AlertDialog.Builder builder = new AlertDialog.Builder(PayActivity.this);
+//                        builder.setMessage("Delete card failed")
+//                                .setNegativeButton("Retry", null)
+//                                .create()
+//                                .show();
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        };
+//
+//        DeleteCardRequest deleteCardRequest = new DeleteCardRequest(user_id,getCardNumber(jsonObjects.get(position)), responseListener);
+//        RequestQueue queue = Volley.newRequestQueue(PayActivity.this);
+//        queue.add(deleteCardRequest);
+    }
+
+    public String getCardNumber(String data){
+        try {
+            JSONObject jsonObject=new JSONObject(data);
+            return jsonObject.get("CARD_NUMBER").toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     /**
@@ -237,5 +335,127 @@ public class PayActivity extends Activity
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
+    }
+
+    public static PayActivity getpayActivity(){
+        return payActivity;
+    }
+
+    //method that provide Fingerprint authentication
+    public void authenticationFingerprint() {
+        //fingerprint autentication
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+            FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            if (ActivityCompat.checkSelfPermission(PayActivity.this, android.Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            // delete account for API level > M if device does not provide hardware for fingerprint
+            if (!fingerprintManager.isHardwareDetected()) {
+                delete();
+                //continue with fingerprint authentication if device has this hardware component
+            } else {
+                if (!fingerprintManager.hasEnrolledFingerprints())
+                    Toast.makeText(PayActivity.this, "Register at least one fingerprint in Settings", Toast.LENGTH_SHORT).show();
+                else {
+                    if (!keyguardManager.isKeyguardSecure())
+                        Toast.makeText(PayActivity.this, "Lock screen security not enabled in Settings", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(PayActivity.this, "Please provide your fingerprint, to succeed deleting your card!", Toast.LENGTH_SHORT).show();
+                    genKey();
+                    if (cipherInit()) {
+                        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+                        FingerprintHandler helper = new FingerprintHandler(PayActivity.this);
+                        helper.setDeleteVar(false);
+                        helper.setDeleteCard(true);
+                        helper.startAuthentication(fingerprintManager, cryptoObject);
+                    }
+                }
+            }
+        }
+    }
+
+    //method for Fingerprint
+    private boolean cipherInit() {
+
+        try {
+            cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            keyStore.load(null);
+            SecretKey key = (SecretKey) keyStore.getKey(KEY_NAME, null);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return true;
+        } catch (IOException e1) {
+
+            e1.printStackTrace();
+            return false;
+        } catch (NoSuchAlgorithmException e1) {
+
+            e1.printStackTrace();
+            return false;
+        } catch (CertificateException e1) {
+
+            e1.printStackTrace();
+            return false;
+        } catch (UnrecoverableKeyException e1) {
+
+            e1.printStackTrace();
+            return false;
+        } catch (KeyStoreException e1) {
+
+            e1.printStackTrace();
+            return false;
+        } catch (InvalidKeyException e1) {
+
+            e1.printStackTrace();
+            return false;
+        }
+
+    }
+
+    //method for Fingerprint
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void genKey() {
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+
+        KeyGenerator keyGenerator = null;
+
+        try {
+            keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            keyStore.load(null);
+            keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setUserAuthenticationRequired(true)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7).build()
+            );
+            keyGenerator.generateKey();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

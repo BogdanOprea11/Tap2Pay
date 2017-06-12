@@ -149,7 +149,7 @@ public class AddCardActivity extends AppCompatActivity {
                     RequestQueue queue = Volley.newRequestQueue(AddCardActivity.this);
                     queue.add(addCardRequest);
                 } else {
-                    Toast.makeText(AddCardActivity.this, "Unsuccessful operation!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddCardActivity.this, "Unsuccessful operation, please try again!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -17,6 +17,7 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
 
     private Context context;
     private boolean deleteVar;
+    private boolean deleteCard;
 
     protected FingerprintHandler(Context context) {
         this.context = context;
@@ -39,19 +40,24 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
     @Override
     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
         super.onAuthenticationSucceeded(result);
-        if (!deleteVar) {
+        if (!deleteVar && !deleteCard) {
             context.startActivity(new Intent(context, UserMainActivity.class));
             LoginActivity.getInstance().finish();
         } else {
-            UserMainActivity.getUserMainActivity().deleteProfile();
+            if (deleteVar) {
+                UserMainActivity.getUserMainActivity().deleteProfile();
+            }
+            if (deleteCard) {
+                PayActivity.getpayActivity().delete();
+            }
         }
-    }
-
-    public boolean isDeleteVar() {
-        return deleteVar;
     }
 
     public void setDeleteVar(boolean deleteVar) {
         this.deleteVar = deleteVar;
+    }
+
+    public void setDeleteCard(boolean deleteCard) {
+        this.deleteCard = deleteCard;
     }
 }

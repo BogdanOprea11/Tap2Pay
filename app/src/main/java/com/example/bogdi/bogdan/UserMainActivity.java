@@ -59,10 +59,12 @@ public class UserMainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private Toolbar toolbar;
+
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
     SharedPreferences preferencesCards;
     SharedPreferences.Editor editorCards;
+
     static UserMainActivity userMainActivity;
     private int user_id;
     private KeyStore keyStore;
@@ -250,6 +252,7 @@ public class UserMainActivity extends AppCompatActivity {
                         FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
                         FingerprintHandler helper = new FingerprintHandler(UserMainActivity.this);
                         helper.setDeleteVar(true);
+                        helper.setDeleteCard(false);
                         helper.startAuthentication(fingerprintManager, cryptoObject);
                     }
                 }
@@ -341,12 +344,14 @@ public class UserMainActivity extends AppCompatActivity {
     }
 
     //method that interrogates DB and return all cards that user has inserted
-    private void getCards() {
+    public void getCards() {
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         int user_id = preferences.getInt("user_id", 0);
 
         preferencesCards = getSharedPreferences("cards", Context.MODE_PRIVATE);
         editorCards = preferencesCards.edit();
+        editorCards.clear();
+        editorCards.apply();
 
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override

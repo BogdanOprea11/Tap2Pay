@@ -184,6 +184,7 @@ public class LoginActivity extends AppCompatActivity {
                                             FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
                                             FingerprintHandler helper = new FingerprintHandler(LoginActivity.this);
                                             helper.setDeleteVar(false);
+                                            helper.setDeleteCard(false);
                                             helper.startAuthentication(fingerprintManager, cryptoObject);
                                         }
                                     }
