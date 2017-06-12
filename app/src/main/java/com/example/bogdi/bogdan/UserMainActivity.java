@@ -79,9 +79,12 @@ public class UserMainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        //get shared preferences
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         editor = preferences.edit();
         user_id = preferences.getInt("user_id", 0);
+        preferencesCards = getSharedPreferences("cards", Context.MODE_PRIVATE);
+        editorCards = preferencesCards.edit();
 
         getCards();
 
@@ -126,16 +129,6 @@ public class UserMainActivity extends AppCompatActivity {
                         startActivity(intent);
                         drawerLayout.closeDrawers();
                         break;
-                    case R.id.nav_cards:
-                        Intent add_card = new Intent(UserMainActivity.this, CreditCardViewActivity.class);
-                        startActivity(add_card);
-                        drawerLayout.closeDrawers();
-                        break;
-                    case R.id.nav_recentActivity:
-                        //Intent recentActivity = new Intent(UserMainActivity.this, DownloadActivity.class);
-                        //startActivity(recentActivity);
-                        drawerLayout.closeDrawers();
-                        break;
                     case R.id.nav_logout:
                         AlertDialog.Builder logOutBuilder = new AlertDialog.Builder(UserMainActivity.this);
                         logOutBuilder.setMessage("Do you really want to Log Out?")
@@ -144,6 +137,8 @@ public class UserMainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         editor.clear();
                                         editor.apply();
+                                        editorCards.clear();
+                                        editorCards.apply();
                                         Intent logout = new Intent(UserMainActivity.this, LoginActivity.class);
                                         startActivity(logout);
                                         finish();
@@ -205,6 +200,8 @@ public class UserMainActivity extends AppCompatActivity {
                     if (success) {
                         editor.clear();
                         editor.apply();
+                        editorCards.clear();
+                        editorCards.apply();
                         Intent intent = new Intent(UserMainActivity.this, LoginActivity.class);
                         startActivity(intent);
                         finish();
@@ -227,7 +224,7 @@ public class UserMainActivity extends AppCompatActivity {
     }
 
     //method that provide Fingerprint authentication
-    public void authenticationFingerprint(){
+    public void authenticationFingerprint() {
         //fingerprint autentication
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
@@ -356,7 +353,7 @@ public class UserMainActivity extends AppCompatActivity {
             public void onResponse(String response) {
                 try {
                     JSONArray jsonarray = new JSONArray(response);
-                    editorCards.putString("cardsString",jsonarray.toString());
+                    editorCards.putString("cardsString", jsonarray.toString());
                     editorCards.apply();
                 } catch (JSONException e) {
                     e.printStackTrace();

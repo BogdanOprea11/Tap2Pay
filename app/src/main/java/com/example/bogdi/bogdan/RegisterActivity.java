@@ -208,8 +208,8 @@ public class RegisterActivity extends AppCompatActivity {
                         editor.putString("email", email);
                         editor.putBoolean("fingerprint", true);
                         editor.putString("password", password);
-                        editor.putString("firstname",jsonObject.getString("firstname"));
-                        editor.putString("lastname",jsonObject.getString("lastname"));
+                        editor.putString("firstname", jsonObject.getString("firstname"));
+                        editor.putString("lastname", jsonObject.getString("lastname"));
                         editor.putInt("user_id", jsonObject.getInt("user_id"));
                         editor.apply();
 

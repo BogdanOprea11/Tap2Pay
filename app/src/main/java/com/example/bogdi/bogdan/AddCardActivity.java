@@ -96,15 +96,6 @@ public class AddCardActivity extends AppCompatActivity {
                     Toast.makeText(AddCardActivity.this, "Please provide 16 digits number for Card Number", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
-                    String auxiliar = "";
-                    for (int i = 0; i < cardNumber.length(); i = i + 4) {
-                        auxiliar += cardNumber.charAt(i) + "";
-                        auxiliar += cardNumber.charAt(i + 1) + "";
-                        auxiliar += cardNumber.charAt(i + 2) + "";
-                        auxiliar += cardNumber.charAt(i + 3) + "";
-                        auxiliar += "     ";
-                    }
-                    //etCardNumber.setText(auxiliar);
                     if (!isValidCardExpDate(expirationDate)) {
                         Toast.makeText(AddCardActivity.this, "Please provide MM/YY card expiration date", Toast.LENGTH_SHORT).show();
                         return;
@@ -113,7 +104,7 @@ public class AddCardActivity extends AppCompatActivity {
                             Toast.makeText(AddCardActivity.this, "Please provide 3 digits number for CVC", Toast.LENGTH_SHORT).show();
                             return;
                         } else {
-                            allInformation=true;
+                            allInformation = true;
                         }
                     }
                 }
@@ -158,12 +149,7 @@ public class AddCardActivity extends AppCompatActivity {
                     RequestQueue queue = Volley.newRequestQueue(AddCardActivity.this);
                     queue.add(addCardRequest);
                 } else {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(AddCardActivity.this);
-//                    builder.setMessage("Your credit card information are not valid!")
-//                            .setNegativeButton("Retry", null)
-//                            .create()
-//                            .show();
-                    Toast.makeText(AddCardActivity.this,"Nu merge!",Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddCardActivity.this, "Unsuccessful operation!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -256,6 +242,82 @@ public class AddCardActivity extends AppCompatActivity {
         return activeNetworkInfo != null;
     }
 
+    /**
+     * method used for calling web service and validating card
+     *
+     * @return alert dialiog
+     * @params cNum, expDate, cName, cCVC
+     */
+    private boolean checkCard(String cNum, String expDate, String cName, String cCVC) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("CARD_NUMBER", cNum);
+            jsonObject.put("EXP_DATE", expDate);
+            jsonObject.put("CVC", cCVC);
+            jsonObject.put("card_name", cName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        cardJson = jsonObject.toString();
+        new AsyncCallSoapValidateCard().execute();
+
+        return cardDataValidation;
+    }
+
+    /**
+     * method used for calling web service and validating card data
+     *
+     * @return bool value
+     */
+    public class AsyncCallSoapValidateCard extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            CallSoap cs = new CallSoap();
+            String response = cs.CallValidate(cardJson);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result.equals("False")) {
+                cardDataValidation = false;
+            }
+            if (result.equals("True")) {
+                try {
+                    new AsyncCallSoapSignCard().execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                cardDataValidation = true;
+            }
+        }
+    }
+
+    /**
+     * method used for calling web service and signing card data
+     *
+     * @return signed data
+     */
+    public class AsyncCallSoapSignCard extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            CallSoap cs = new CallSoap();
+            String response = cs.CallSign(cardJson);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            cardSigned = result;
+        }
+    }
+
     private static File getOutputMediaFile(String card_number) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
@@ -301,63 +363,4 @@ public class AddCardActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkCard(String cNum, String expDate, String cName, String cCVC) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("CARD_NUMBER", cNum);
-            jsonObject.put("EXP_DATE", expDate);
-            jsonObject.put("CVC", cCVC);
-            jsonObject.put("card_name", cName);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        cardJson = jsonObject.toString();
-        new AsyncCallSoapValidateCard().execute();
-
-        return cardDataValidation;
-    }
-
-    public class AsyncCallSoapValidateCard extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            CallSoap cs = new CallSoap();
-            String response = cs.CallValidate(cardJson);
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            if (result.equals("False")) {
-                cardDataValidation = false;
-            }
-            if(result.equals("True")){
-                try {
-                    new AsyncCallSoapSignCard().execute().get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-                cardDataValidation=true;
-            }
-        }
-    }
-
-    public class AsyncCallSoapSignCard extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            CallSoap cs = new CallSoap();
-            String response = cs.CallSign(cardJson);
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            cardSigned=result;
-        }
-    }
 }

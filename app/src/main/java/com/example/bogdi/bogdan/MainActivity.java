@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //play video intro
-        String path ;
+        String path;
         VideoView mVideoView;
-        path="android.resource://com.example.bogdi.bogdan/"+R.raw.video_intro;
+        path = "android.resource://com.example.bogdi.bogdan/" + R.raw.video_intro;
         mVideoView = (VideoView) findViewById(R.id.video);
         if (path.length() == 0) {
             Toast.makeText(MainActivity.this, "File URL/path is empty",
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         mVideoView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Intent in =new Intent(MainActivity.this,LoginActivity.class);
+                Intent in = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(in);
                 finish();
                 return false;
@@ -69,12 +69,11 @@ public class MainActivity extends AppCompatActivity {
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer arg0) {
-                Intent in =new Intent(MainActivity.this,LoginActivity.class);
+                Intent in = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(in);
                 finish();
             }
         });
-
 
 
     }

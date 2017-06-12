@@ -39,10 +39,10 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
     @Override
     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
         super.onAuthenticationSucceeded(result);
-        if(!deleteVar) {
+        if (!deleteVar) {
             context.startActivity(new Intent(context, UserMainActivity.class));
             LoginActivity.getInstance().finish();
-        }else{
+        } else {
             UserMainActivity.getUserMainActivity().deleteProfile();
         }
     }

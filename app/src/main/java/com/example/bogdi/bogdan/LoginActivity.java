@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                                     .show();
                             return;
                         }
-                        if(password.length()!=0) {
+                        if (password.length() != 0) {
                             //make login if there is no session
                             Response.Listener<String> responseListener = new Response.Listener<String>() {
                                 @Override
@@ -142,8 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                             LoginRequest loginRequest = new LoginRequest(email, password, responseListener);
                             RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
                             queue.add(loginRequest);
-                        }
-                        else {
+                        } else {
                             Toast.makeText(LoginActivity.this, "Please provide account password!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -180,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
                                             Toast.makeText(LoginActivity.this, "Lock screen security not enabled in Settings", Toast.LENGTH_SHORT).show();
                                         else
                                             Toast.makeText(LoginActivity.this, "Fingerprint authentication enable, please provide your fingerprint!", Toast.LENGTH_LONG).show();
-                                            genKey();
+                                        genKey();
                                         if (cipherInit()) {
                                             FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
                                             FingerprintHandler helper = new FingerprintHandler(LoginActivity.this);
@@ -214,8 +213,8 @@ public class LoginActivity extends AppCompatActivity {
                                             editor.putString("email", email);
                                             editor.putBoolean("fingerprint", true);
                                             editor.putString("password", password);
-                                            editor.putString("firstname",jsonObject.getString("firstname"));
-                                            editor.putString("lastname",jsonObject.getString("lastname"));
+                                            editor.putString("firstname", jsonObject.getString("firstname"));
+                                            editor.putString("lastname", jsonObject.getString("lastname"));
                                             editor.putInt("user_id", jsonObject.getInt("user_id"));
                                             editor.apply();
                                             Intent intent = new Intent(LoginActivity.this, UserMainActivity.class);

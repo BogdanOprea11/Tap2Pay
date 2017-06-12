@@ -53,9 +53,9 @@ public class EditProfileActivity extends AppCompatActivity {
         final Button btRegister = (Button) findViewById(R.id.btSubmit);
 
         //fill fields with current information
-        etEmail.setText(preferences.getString("email",""));
-        etFirstName.setText(preferences.getString("firstname",""));
-        etLastName.setText(preferences.getString("lastname",""));
+        etEmail.setText(preferences.getString("email", ""));
+        etFirstName.setText(preferences.getString("firstname", ""));
+        etLastName.setText(preferences.getString("lastname", ""));
 
         btRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +76,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 final String password = etPassword.getText().toString();
                 final String repeatPassword = etRepeatPassword.getText().toString();
                 boolean allInformation = false;
-                boolean partialInformation=false;
+                boolean partialInformation = false;
 
                 if (email.length() == 0) {
                     Toast.makeText(EditProfileActivity.this, "Please provide an email", Toast.LENGTH_SHORT).show();
@@ -94,20 +94,17 @@ public class EditProfileActivity extends AppCompatActivity {
                                 Toast.makeText(EditProfileActivity.this, "Please provide your Last Name", Toast.LENGTH_SHORT).show();
                                 return;
                             } else {
-                                partialInformation=true;
+                                partialInformation = true;
                             }
                         }
                     }
                 }
 
-                if(partialInformation && (oldPassword.length()!=0 || password.length()!=0 || repeatPassword.length()!=0))
-                {
-                    if(!oldPassword.equals(preferences.getString("password","")))
-                    {
+                if (partialInformation && (oldPassword.length() != 0 || password.length() != 0 || repeatPassword.length() != 0)) {
+                    if (!oldPassword.equals(preferences.getString("password", ""))) {
                         Toast.makeText(EditProfileActivity.this, "Your old password doesn't match", Toast.LENGTH_SHORT).show();
                         return;
-                    }
-                    else {
+                    } else {
                         if (password.length() < 6) {
                             Toast.makeText(EditProfileActivity.this, "Please provide a password that contains minimum 6 characters.", Toast.LENGTH_LONG).show();
                             return;
@@ -138,8 +135,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
                                 if (success) {
                                     editor.putString("email", email);
-                                    editor.putString("firstname",firstName);
-                                    editor.putString("lastname",lastName);
+                                    editor.putString("firstname", firstName);
+                                    editor.putString("lastname", lastName);
                                     editor.apply();
                                     UserMainActivity.getUserMainActivity().finish();
                                     Intent intent = new Intent(EditProfileActivity.this, UserMainActivity.class);
@@ -158,7 +155,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         }
                     };
 
-                    EditProfileRequest editProfileRequest = new EditProfileRequest(email, preferences.getString("password",""), firstName, lastName, user_id, responseListener);
+                    EditProfileRequest editProfileRequest = new EditProfileRequest(email, preferences.getString("password", ""), firstName, lastName, user_id, responseListener);
                     RequestQueue queue = Volley.newRequestQueue(EditProfileActivity.this);
                     queue.add(editProfileRequest);
                 }
@@ -174,9 +171,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
                                 if (success) {
                                     editor.putString("email", email);
-                                    editor.putString("firstname",firstName);
-                                    editor.putString("lastname",lastName);
-                                    editor.putString("password",password);
+                                    editor.putString("firstname", firstName);
+                                    editor.putString("lastname", lastName);
+                                    editor.putString("password", password);
                                     editor.apply();
                                     UserMainActivity.getUserMainActivity().finish();
                                     Intent intent = new Intent(EditProfileActivity.this, UserMainActivity.class);
