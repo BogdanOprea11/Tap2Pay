@@ -9,8 +9,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
@@ -127,7 +125,6 @@ public class AddCardActivity extends AppCompatActivity {
 
                                 if (success) {
                                     UserMainActivity.getUserMainActivity().finish();
-                                    saveFrameLayout((LinearLayout) findViewById(R.id.linearLayoutCardView), cardNumber);
                                     Toast.makeText(AddCardActivity.this, cardType, Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(AddCardActivity.this, UserMainActivity.class);
                                     startActivity(intent);
@@ -155,7 +152,6 @@ public class AddCardActivity extends AppCompatActivity {
         });
 
     }
-
 
     /**
      * method is used for checking valid password format.
@@ -315,51 +311,6 @@ public class AddCardActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             cardSigned = result;
-        }
-    }
-
-    private static File getOutputMediaFile(String card_number) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + context.getPackageName()
-                + "/Files");
-
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
-        File mediaFile;
-        //String mImageName = "MI_" + timeStamp + ".jpg";
-        String mImageName = card_number + ".jpg";
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
-        return mediaFile;
-    }
-
-    private static void saveFrameLayout(LinearLayout linearLayout, String card_number) {
-        linearLayout.setDrawingCacheEnabled(true);
-        linearLayout.buildDrawingCache(true);
-        Bitmap cache = Bitmap.createBitmap(linearLayout.getDrawingCache());
-        linearLayout.setDrawingCacheEnabled(false);
-
-        try {
-            File pictureFile = getOutputMediaFile(card_number);
-            FileOutputStream fos = new FileOutputStream(pictureFile);
-            cache.compress(Bitmap.CompressFormat.PNG, 90, fos);
-            fos.close();
-        } catch (Exception e) {
-            // TODO: handle exception
-        } finally {
-            linearLayout.destroyDrawingCache();
         }
     }
 

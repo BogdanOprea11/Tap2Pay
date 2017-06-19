@@ -226,35 +226,34 @@ public class PayActivity extends Activity
     public void delete(){
         preferences = getSharedPreferences("login", Context.MODE_PRIVATE);
         int user_id = preferences.getInt("user_id", 0);
-        Toast.makeText(context,"Am intrat in delete!",Toast.LENGTH_SHORT).show();
 
-//        Response.Listener<String> responseListener = new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                try {
-//                    JSONObject jsonResponse = new JSONObject(response);
-//                    boolean success = jsonResponse.getBoolean("success");
-//
-//                    if (success) {
-//                        Toast.makeText(context,"Card deleted!",Toast.LENGTH_SHORT).show();
-//                        UserMainActivity.getUserMainActivity().getCards();
-//                        recreate();
-//                    } else {
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(PayActivity.this);
-//                        builder.setMessage("Delete card failed")
-//                                .setNegativeButton("Retry", null)
-//                                .create()
-//                                .show();
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//
-//        DeleteCardRequest deleteCardRequest = new DeleteCardRequest(user_id,getCardNumber(jsonObjects.get(position)), responseListener);
-//        RequestQueue queue = Volley.newRequestQueue(PayActivity.this);
-//        queue.add(deleteCardRequest);
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    boolean success = jsonResponse.getBoolean("success");
+
+                    if (success) {
+                        Toast.makeText(context,"Card deleted!",Toast.LENGTH_SHORT).show();
+                        UserMainActivity.getUserMainActivity().getCards();
+                        recreate();
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(PayActivity.this);
+                        builder.setMessage("Delete card failed")
+                                .setNegativeButton("Retry", null)
+                                .create()
+                                .show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        DeleteCardRequest deleteCardRequest = new DeleteCardRequest(user_id,getCardNumber(jsonObjects.get(position)), responseListener);
+        RequestQueue queue = Volley.newRequestQueue(PayActivity.this);
+        queue.add(deleteCardRequest);
     }
 
     public String getCardNumber(String data){
@@ -269,6 +268,13 @@ public class PayActivity extends Activity
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        UserMainActivity.getUserMainActivity().getCards();
+        super.onBackPressed();
     }
 
     /**

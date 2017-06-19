@@ -15,7 +15,7 @@ public class DeleteCardRequest extends StringRequest {
         super(Request.Method.POST, REGISTER_REQUEST_URL, listener, null);
 
         params = new HashMap<>();
-        params.put("user_id", user_id + "");
+        params.put("ID_user", user_id + "");
         params.put("CARD_NUMBER", CARD_NUMBER);
     }
 

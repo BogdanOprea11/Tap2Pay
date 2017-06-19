@@ -45,7 +45,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             public void onClick(View view, final int position, boolean isLongClick) {
                 if(isLongClick){
                     AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(context);
-                    deleteBuilder.setMessage("Do you really want to delete your Account?")
+                    deleteBuilder.setMessage("Do you really want to delete your Credit Card?")
                             .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -56,7 +56,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                             .setNegativeButton("Cancel", null)
                             .create()
                             .show();
-                    Toast.makeText(context,"LONG CLICK",Toast.LENGTH_SHORT).show();
                 }else {
                     PayActivity.getpayActivity().chooseCards(position,false);
                 }
